@@ -10,7 +10,7 @@
 그리고 라즈베리파이4에서 thonny라는 PYTHON IDE 툴에서 YOLO를 활용하여 영상을 서버로 옮겨주는 방식을 생각했다가, 우선 가장 기본 로직으로 가져가고 추후에 활용하는 방식으로 가져가기위하여 라즈베리파이에서 영상을 웹 스트리밍 방식으로 제공하고 서버에서 해당 영상을 가져와서 YOLO 모델을 거쳐서 YOLO 모델 영상을 FLUTTER ( 클라이언트 )에  뿌려주는 로직으로 가져가는걸 구상하고있다.
 
 라즈베리파이4에서 test.py에 opencv를 활용하여 비디오가 정상실행을 확인하고, 웹스트리밍을 활용하기위해 mjpg_streamer을 활용하하여 아이피:8090 port로 정상 구현 확인하였다. ( 참고 : https://jow1025.tistory.com/295 )
-![image](https://github.com/wonjin0307/SecurityCCTV/assets/87004845/21cfcb8a-23d8-474a-9c7c-9da5c38f3f8d)
+
 
 터미널에서 웹스트리밍을 실행시키고, 종료를 시켰을때 프로세스자체를 종료하지않으면 좀비프로세스로 떠돌고있으므로, kill -9 PID번호 를 활용하여 완전히 종료 시켜준다.
 
@@ -19,3 +19,43 @@
 
 # 2023-11-08
 정원진 : flask를 설치하고, mjpg-streamer에서 실시간 스트리밍 영상을 opencv를 활용하여 서버로 가져오고 , 가져온 영상을 yolo model에 입혀서 디택션되는 영상을 flask 서버에 스트리밍하는 방식으로 진행했고, opencv에서 VideoCapture를 통해 영상을 가져오고 해당 영상에서 다시 스트리밍 하는 방식에서 많이 해맸는데, 구글링을 통해 프레임 자체를 바이트로 변환이 필요하다는 사실을 알게되었고, 스트리밍된 프레임을 반환하는 코드에 주석처리를하며 공부하면서 진행하느냐 시간이 많이 걸렸다. ( 참고 : https://colinch4.github.io/2023-09-06/09-24-30-287952/ )
+또한 yolo v8x 모델을 입혔었는데 , 딜레이가 아주 심하게 걸려서 왜 그러나 했는데 cuda를 사용하는데 cpu 전용을 사용하고있다, gpu가 없기때문에 이 때문에 연산처리과정이 느려서 아무래도 딜레이가 걸린다고 예상된다. 따라서 현재는 cpu-cuda 를 사용중이지만 안양 연구실에서 2080ti GPU 를 가져와서 장착후 , GPU-CUDA 를 활용하여 딜레이를 줄일 생각이다.
+
+# 2023-11-13
+정원진 : 저번주에 backend 에 가상환경을 설정하고 flask, opencv-python, yolo 를 설치하고 라즈베리파이에서 mjpg-streamer서버로 실시간 영상을 송출하고 opencv 를 통하여 서버에서 영상을 가져오고, 가져온 영상을 yolov8n 모델을 적용하여 flask 서버로 송출하는 방식을 사용하여 github에 push를 했는데 push하는 과정에서 venv(가상환경)에 있는 라이브러리 용량이 1.5기가바이트나 차지한다고 에러가 발생하여 왜 그러나 확인해봤더니 github limit 용량이 2G 라서 venv를 포함한 project 폴더가 2.5G 가 넘어가서 에러가 나는 상황이였다. 따라서 git 활용을 할때의 유의사항과 자세하게 공부하기위해 (DO IT GIT ) 책을 통하여 공부를 진행하게되었고, 결과적으로 원격 레파지토리를 CCTV_BACKEND/CCTV_FRONTEND로 나눴고, VENV와 같은 가상환경은 제외하고 .py 파일만 업로드하여 정리하기 위하여 lib 폴더를 따로 생성하여 index.html/app.py/main.py/dectection.py 와 같은 파일만 업로드하여 버전관리를 진행하기로 하였다. 추가적으로 git 공부한 내용을 정리하여 올려두도록 하겠다.
+![image](https://github.com/wonjin0307/Security_CCTV_backend/assets/87004845/42041e88-2ecc-4836-9912-52de32524250)
+추가적으로 venv는 업로드를 안한 상태이니, 다른 개발환경에서는 가상환경을 설치해야되고, 가상환경에서 flask,opencv,yolo(ultralytics) 설치해야한다.
+
+
+
+
+Git Information
+---
+전반적으로 원래 VSCODE과 같은 에디터를 활용하여 git을 활용했었는데 이러면 다른 에디터를 사용할때마다 공부를 해야될꺼같아서 가장 베이직하게 git bash에서 활용하는 방법을 간략하게 정리해두겠다. 내가 다시 봤을때 이해하기 쉽게 정리한다.
+[참조 : https://wordbe.tistory.com/entry/Git-%EC%82%AC%EC%9A%A9-%EB%B0%A9%EB%B2%95-%EC%A0%95%EB%A6%ACcommit-push-pull-request-merge-%EB%93%B1 ]
+
+**Git 의 대략적인 구조**
+
+**Working Directory(Local)** : 로컬 저장소
+
+**Staging** : add를 통해서 수정된 코드를 임시적으로 올려놓는 영역 
+
+**Repository** : 원격 저장소 (git commit을 통해서 수정본을 올려주는 느낌 )
+
+**Git 용어정리**
+
+**pull ->** 원격 저장소에서 로컬 저장소로 데이터를 최신화 하는것. ( 가져오는 느낌 )
+
+**push ->** 로컬 저장소에서 원격 저장소로 데이터를 최신화 하는것. ( 밀어내는 느낌 )
+
+**add ->** 바뀐 내역을 추가하는 것. 즉 commit을 진행하기전에 바뀐 내역들을 리스트로 보여주고 이게 맞으면 commit해 라는 느낌 ( 임시 저장된 상태 )
+
+**commit ->** 로컬 저장소에 이게이게 바꼈으니깐 업데이트를 하라고 알려주것. ( 로컬 저장소 업데이트 느낌 )
+
+**branch ->** 말그대로 가지라는 느낌인데 기존 branch 를 master 라고 생각한다 즉 나무의 기둥이라고 생각하고, 그 주위에 branch(가지)를 달면서 코드를 추가해 나가는 방식을 말한다.
+
+**pull request ->**코드 수정을 했으니깐 master 에게 코드를 master branch에 올려도 되는지 검수 해달라는 행위라고 생각하면 편하다.
+
+**merge ->** master가 pull request을 보고 master branch에 올려도 된다고 생각하면 합병시키는 행위.
+
+
