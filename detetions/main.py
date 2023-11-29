@@ -8,5 +8,5 @@ sizeOfScreen=(960,640)
 
 ob=ObjectDetectionMaster(yolov8n,sizeOfScreen)
 def mainMaster(frame):
-    ob.detectionSupervision(frame)
-    return frame
+    frame,class_id=ob.detectionSupervision(frame)
+    return frame,class_id

@@ -56,10 +56,15 @@ class ObjectDetectionMaster:
             for _, _,confidence, class_id,_
             in detections
         ]
+        class_id = [
+            f"{self.CLASS_NAMES_DICT[class_id]}"
+            for _, _,_, class_id,_
+            in detections
+        ]
         frame = self.box_annotator.annotate(
             scene=frame, 
             detections=detections, 
             labels=labels
         )
         
-        return frame
+        return frame,class_id
