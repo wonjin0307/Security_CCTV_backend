@@ -48,6 +48,7 @@ class ObjectDetectionMaster:
         results = self.model(frame)#, agnostic_nms=True
         result=results[0]
         detections = sv.Detections.from_ultralytics(result)
+        # detections = detections[detections.confidence > 0.45]
         
         # self.conter.conter(result,self.classNames())
         # print(bbox_id,"->id")
