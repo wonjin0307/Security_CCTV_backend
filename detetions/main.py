@@ -1,7 +1,8 @@
 from lib.detetions.ObjectDetectionMaster import ObjectDetectionMaster
-
-
-bestEggs=""
+from ultralytics import YOLO
+# yolo_m = YOLO(model='yolov8m.pt')
+yolo_nano = "C:/Users/anyang/Desktop/project/backend/traingModel/weights/yolov8n.pt"
+yolo_best_fight_n_hul="C:/Users/anyang/Desktop/project/backend/traingModel/weights/fall_down_fight_n_hul.pt"
 yolov8n="../traingModel/weights/falldown_x.pt"
 yolo_bestx = "C:/Users/anyang/Desktop/project/backend/traingModel/weights/falldown_x.pt"
 yolo_bestn = "C:/Users/anyang/Desktop/project/backend/traingModel/weights/falldown_n.pt"
